@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: docker/dev-js
+    container_name: grpc-poc-app
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    entrypoint: sh -c "yarn start"
+    ports:
+      - '3000:3000'
+    env_file:
+      - config/app/.env
+    environment:
+      - NODE_ENV=development
+
+  gateway-service:
+    build:
+      context: docker/dev-js
+    container_name: grpc-poc-gateway
+    volumes:
+      - ./internal/gateway:/app
+      - ./api/protobuf:/api/protobuf
+    working_dir: /app
+    entrypoint: sh -c "yarn dev"
+    ports:
+      - "4000:${PORT}"
+    env_file:
+      - config/gateway/.env
+
+  sensor-service:
+    build:
+      context: docker/dev-go
+    container_name: grpc-poc-sensor
+    volumes:
+      - ./internal:/internal
+    working_dir: /internal/sensor
+    ports:
+      - "4001:${PORT}"
+    env_file:
+      - config/sensor/.env
+
+  alert-service:
+    build:
+      context: docker/dev-go
+    container_name: grpc-poc-alert
+    volumes:
+      - ./internal:/internal
+    working_dir: /internal/alert
+    ports:
+      - "4002:${PORT}"
+    env_file:
+      - config/alert/.env

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package sensor;
+
+option go_package = "github.com/valensto/grpc-poc/internal/sensor";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+
+service SensorService {
+  rpc AddMeasurement(MeasurementRequest) returns (google.protobuf.Empty) {}
+}
+
+message MeasurementRequest {
+  string project_id = 1;
+  string sensor_id = 2;
+  string field = 3;
+  float value = 4;
+}

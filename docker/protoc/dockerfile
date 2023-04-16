@@ -1,0 +1,17 @@
+FROM golang:1.20-alpine as protoc
+RUN apk update && apk add --no-cache  git protobuf protobuf-dev
+
+RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+RUN cp /go/bin/protoc-gen-go /usr/bin/
+
+#RUN apk add --no-cache nodejs npm && npm install -g grpc-tools
+#ENV PATH="/usr/local/lib/node_modules/grpc-tools/bin:${PATH}"
+
+WORKDIR /protobuf
+COPY /api/protobuf .
+COPY /docker/protoc/proto.sh .
+RUN ./proto.sh
+
+FROM scratch as output
+COPY --from=protoc /genproto .
